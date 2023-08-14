@@ -21,6 +21,42 @@ class Login
         try {
             String email = request.getParameter("email");
             String token = request.getParameter("password");
+                    // Use prepared statement to prevent SQL injection attacks
+        String sql = "select * from users where (email = ? and password = ?)";
+        connection = pool.getConnection();
+        statement = connection.prepareStatement(sql);
+        statement.setString(1, email);
+        statement.setString(2, token);
+
+        // Use role-based access controls
+        HttpSession session = request.getSession();
+        String role = (String)session.getAttribute("role");
+        if (role.equals(ADMIN)) {
+            ResultSet result = statement.executeQuery();
+        }
+
+        if (result.next()) {
+            loggedIn = true;
+            // Successfully logged in and redirect to user profile page
+        
+        } else {
+         // Auth failure - Redirect to Login Page
+        }
+    }
+    catch (SQLException ex) {
+        handleExceptions(ex);
+    }
+    finally {
+        // Properly close resources to prevent resource leaks
+        if (statement != null) {
+            statement.close();
+        }
+        if (connection != null) {
+            connection.close();
+        }
+    }
+}
+
 
             String sql = "select * from users where (email ='" + email +"' and password ='" + token + "')";
 
